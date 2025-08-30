@@ -31,13 +31,18 @@
 ```groovy
 repositories {
     // ...
+    flatDir { 
+        dirs 'libs' 
+    }
 }
 
 dependencies {
     // ...
-    implementation fg.deobf('com.mx_wj:networkhelper:0.1-beta')
+    implementation fg.deobf("blank:networkhelper:0.1:beta")
 }
 ```
+
+将 networkhelper-0.1-beta.jar 文件放在 libs 目录下即可。
 
 ### 步骤 2: 创建你的数据包
 
