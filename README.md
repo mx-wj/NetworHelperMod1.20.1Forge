@@ -59,8 +59,6 @@ PacketManager.sendToAllPlayers(packet);
 
 ## 贡献指南
 欢迎贡献代码和改进。
-- 保持代码风格一致
-- 添加必要的文档注释
 - 测试新增功能
 - 提交清晰的提交信息
 
