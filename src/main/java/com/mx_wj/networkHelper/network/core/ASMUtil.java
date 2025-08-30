@@ -24,9 +24,8 @@ public final class ASMUtil {
     public static <T extends IPacket> Function<FriendlyByteBuf, T> createDecoder(Class<T> packetClass) {
         try {
             // 确保目标构造函数存在
-            final Constructor<T> targetConstructor;
             try {
-                targetConstructor = packetClass.getConstructor(FriendlyByteBuf.class);
+                packetClass.getConstructor(FriendlyByteBuf.class);
             } catch (NoSuchMethodException e) {
                 throw new IllegalArgumentException("Packet class " + packetClass.getSimpleName() + " must have a public constructor that accepts a single FriendlyByteBuf argument.", e);
             }

@@ -1,5 +1,10 @@
 package com.mx_wj.networkHelper.network.core.info;
 
+/**
+ * 定义网络包的传输方向。
+ * <p>
+ * 用于在注册时限制数据包的流向，增强稳定性和安全性。
+ */
 public enum PacketDirection {
     /**
      * 从客户端发送到服务端 (C -> S)

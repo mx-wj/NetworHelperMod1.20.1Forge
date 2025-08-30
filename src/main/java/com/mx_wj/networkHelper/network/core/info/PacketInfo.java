@@ -18,12 +18,5 @@ public @interface PacketInfo {
      * 定义该网络包的传输方向。
      */
     PacketDirection direction();
-
-    /**
-     * 定义网络包的传输方向。
-     * <p>
-     * 用于在注册时限制数据包的流向，增强稳定性和安全性。
-     */
-
 }
 
