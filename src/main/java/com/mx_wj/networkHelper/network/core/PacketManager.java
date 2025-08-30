@@ -40,13 +40,14 @@ public class PacketManager {
                     PROTOCOL_VERSION::equals
             );
             channels.put(modID, simpleChannel);
-            NetworkHelperMod.LOGGER.info("Registered SimpleChannel for:{}", modID);
+            NetworkHelperMod.LOGGER.info("Registering packets for mod '{}'...", modID);
             int packetId = 0;
             for(Class<? extends IPacket> packetClass : packetClasses){
                 registerPacket(simpleChannel, packetClass, packetId);
                 packetId++;
-                NetworkHelperMod.LOGGER.info("Registered Packet:{}", packetClass.getSimpleName());
+                NetworkHelperMod.LOGGER.info(" -> Registered packet: {}", packetClass.getSimpleName());
             }
+            NetworkHelperMod.LOGGER.info("Finished registration for mod '{}'. Total packets: {}", modID, packetId);
         }
     }
 
