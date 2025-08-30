@@ -6,8 +6,6 @@
 
 一个为 Minecraft Forge 模组开发者设计的，旨在简化网络数据包（Packet）处理的辅助模组。
 
-目前版本仅支持Minecraft Forge 1.20.1
-
 ## 简介
 
 在 Forge 模组开发中，处理客户端与服务端之间的数据同步通常需要编写大量的网络数据包代码，这个过程繁琐且容易出错。`Network Helper` 的目标是大幅简化这一流程，让开发者可以更专注于功能逻辑本身。
@@ -119,6 +117,10 @@ public class MyEventHandler {
     }
 }
 ```
+
+## 版本
+
+目前版本仅支持Minecraft Forge 1.20.1 (逃
 
 ## 许可证
 
