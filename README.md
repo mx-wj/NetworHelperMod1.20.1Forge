@@ -39,6 +39,7 @@ PacketManager.sendToAllPlayers(packet);
 数据包方向枚举：
 - CLIENT_TO_SERVER
 - SERVER_TO_CLIENT
+- BIDIRECTIONAL
 
 ### PacketManager
 核心数据包管理类，提供：
