@@ -13,7 +13,7 @@
 
 ### 数据包定义
 
-创建数据包类时需继承`EasyPacket`或实现`IPacket`接口，并使用`@PacketInfo`注解指定数据包方向。
+创建数据包类时需继承`EasyPacket`或实现`IPacket`接口，并使用`@PacketInfo`注解指定数据包方向。该模组会帮您自动注册网络包
 
 ```java
 @PacketInfo(direction = PacketDirection.CLIENT_TO_SERVER)
@@ -31,17 +31,6 @@ PacketManager.registerPackets();
 PacketManager.sendToServer(packet);
 PacketManager.sendToPlayer(player, packet);
 PacketManager.sendToAllPlayers(packet);
-```
-
-### 事件处理
-
-使用`@Mod.EventBusSubscriber`注解的类可以订阅和处理Forge事件：
-
-```java
-@Mod.EventBusSubscriber
-public class TestEvent {
-    // 事件处理方法
-}
 ```
 
 ## API说明
@@ -62,8 +51,6 @@ public class TestEvent {
 ### 添加自定义数据包
 1. 创建继承`EasyPacket`的类或实现`IPacket`接口的类
 2. 使用`@PacketInfo`注解指定数据包方向
-3. 使用`PacketManager.addToRegister()`添加到注册列表
-4. 调用`PacketManager.registerPackets()`完成注册
 
 ### 数据包处理
 实现`IPacket`接口需要提供：
@@ -71,11 +58,11 @@ public class TestEvent {
 - `execute(NetworkEvent.Context context)` - 数据包执行方法
 
 ## 贡献指南
-欢迎贡献代码和改进。请确保：
+欢迎贡献代码和改进。
 - 保持代码风格一致
 - 添加必要的文档注释
 - 测试新增功能
 - 提交清晰的提交信息
 
 ## 许可证
-本项目采用MIT许可证。详情请查看LICENSE.txt文件。
+本项目采用MPL 2.0许可证。详情请查看LICENSE.txt文件。
