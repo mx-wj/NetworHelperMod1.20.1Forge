@@ -28,14 +28,17 @@ public class NetworkHelperMod
 
     public void onCommonSetup(FMLCommonSetupEvent event) {
         for(ModFileScanData modFileScanData : ModList.get().getAllScanData()){
+            String modID = null;
             boolean isMod = true;
             for(IModFileInfo modFileInfo : modFileScanData.getIModInfoData()){
                 for(IModInfo modInfo : modFileInfo.getMods()){
-                    String modID = modInfo.getModId();
-                    if(modID.equals("minecraft") || modID.equals("forge")) isMod = false;
+                    String currentModID = modInfo.getModId();
+                    if(currentModID.equals("minecraft") || currentModID.equals("forge")) isMod = false;
+                    modID = modID == null ? currentModID : modID;
                 }
             }
             if(!isMod) continue;
+            if(modID == null) continue;
             for(ModFileScanData.ClassData classData : modFileScanData.getClasses()){
                 boolean isPacket = false;
                 for(Type type : classData.interfaces()){
@@ -52,7 +55,7 @@ public class NetworkHelperMod
                     try {
                         Class<?> packetClass = Class.forName(classData.clazz().getClassName());
                         if(packetClass.getAnnotation(PacketInfo.class) != null){
-                            PacketManager.addToRegister(packetClass);
+                            PacketManager.addToRegister(modID, packetClass);
                         }
                     } catch (Throwable t) {
                         LOGGER.error("Error loading packet class: ", t);

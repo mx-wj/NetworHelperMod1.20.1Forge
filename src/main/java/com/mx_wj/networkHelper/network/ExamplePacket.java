@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
-@PacketInfo(direction = PacketDirection.CLIENT_TO_SERVER)
+//@PacketInfo(direction = PacketDirection.CLIENT_TO_SERVER)
 public class ExamplePacket implements IPacket {
 
     private final int number;

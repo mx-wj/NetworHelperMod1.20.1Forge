@@ -12,40 +12,45 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 /**
  * 傻瓜式网络包管理器 (Forge 1.20.1 版本)
  */
 public class PacketManager {
-    private static final List<Class<? extends IPacket>> toRegisterPackets = new ArrayList<>();
+    private static final Map<String, List<Class<? extends IPacket>>> toRegisterPackets = new HashMap<>();
+    private static final Map<String, SimpleChannel> channels = new HashMap<>();
 
     private static final String PROTOCOL_VERSION = "1";
-    private static int packetId = 0;
 
-    public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(NetworkHelperMod.MODID, "main"),
-            () -> PROTOCOL_VERSION,
-            PROTOCOL_VERSION::equals,
-            PROTOCOL_VERSION::equals
-    );
+    @SuppressWarnings("all")
+    public static void addToRegister(String modID, Class<?> packetClass) {
+        toRegisterPackets.computeIfAbsent(modID, k -> new ArrayList<>()).add((Class<? extends IPacket>) packetClass);
+    }
 
     public static void registerPackets() {
-        for (Class<? extends IPacket> packetClass : toRegisterPackets) {
-            registerPacket(packetClass);
-            NetworkHelperMod.LOGGER.info("Registered packet:{}", packetClass.getSimpleName());
+        for (Map.Entry<String, List<Class<? extends IPacket>>> entry : toRegisterPackets.entrySet()) {
+            String modID = entry.getKey();
+            List<Class<? extends IPacket>> packetClasses = entry.getValue();
+            SimpleChannel simpleChannel = NetworkRegistry.newSimpleChannel(
+                    new ResourceLocation(modID, "main"),
+                    () -> PROTOCOL_VERSION,
+                    PROTOCOL_VERSION::equals,
+                    PROTOCOL_VERSION::equals
+            );
+            channels.put(modID, simpleChannel);
+            NetworkHelperMod.LOGGER.info("Registered SimpleChannel for:{}", modID);
+            int packetId = 0;
+            for(Class<? extends IPacket> packetClass : packetClasses){
+                registerPacket(simpleChannel, packetClass, packetId);
+                packetId++;
+                NetworkHelperMod.LOGGER.info("Registered Packet:{}", packetClass.getSimpleName());
+            }
         }
     }
 
-    @SuppressWarnings("all")
-    public static void addToRegister(Class<?> packetClass) {
-        toRegisterPackets.add((Class<? extends IPacket>) packetClass);
-    }
-
-    private static <T extends IPacket> void registerPacket(Class<T> packetClass) {
+    private static <T extends IPacket> void registerPacket(SimpleChannel simpleChannel, Class<T> packetClass, int packetId) {
         PacketInfo info = packetClass.getAnnotation(PacketInfo.class);
         if (info == null) {
             throw new IllegalArgumentException("Packet class " + packetClass.getSimpleName() + " is missing the @PacketInfo annotation!");
@@ -55,15 +60,15 @@ public class PacketManager {
 
         switch (direction) {
             case CLIENT_TO_SERVER ->
-                    registerInternal(packetClass, decoder, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+                    registerInternal(simpleChannel, packetClass, packetId, decoder, Optional.of(NetworkDirection.PLAY_TO_SERVER));
 
             case SERVER_TO_CLIENT ->
-                    registerInternal(packetClass, decoder, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+                    registerInternal(simpleChannel, packetClass, packetId, decoder, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 
             case BIDIRECTIONAL -> {
                 // 双向包分别注册两个方向
-                registerInternal(packetClass, decoder, Optional.of(NetworkDirection.PLAY_TO_SERVER));
-                registerInternal(packetClass, decoder, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+                registerInternal(simpleChannel, packetClass, packetId, decoder, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+                registerInternal(simpleChannel, packetClass, packetId, decoder, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
             }
         }
     }
@@ -71,8 +76,8 @@ public class PacketManager {
     /**
      * Forge 1.20.1 的内部注册方法
      */
-    private static <T extends IPacket> void registerInternal(Class<T> packetClass, Function<FriendlyByteBuf, T> decoder, Optional<NetworkDirection> direction) {
-        INSTANCE.registerMessage(packetId++,
+    private static <T extends IPacket> void registerInternal(SimpleChannel simpleChannel, Class<T> packetClass, int packetId, Function<FriendlyByteBuf, T> decoder, Optional<NetworkDirection> direction) {
+        simpleChannel.registerMessage(packetId,
                 packetClass,
                 IPacket::encode,
                 decoder,
@@ -85,9 +90,29 @@ public class PacketManager {
         );
     }
 
+    public static void sendToServer(String modID, IPacket packet) {
+        SimpleChannel channel = channels.get(modID);
+        if (channel == null) {
+            throw new IllegalArgumentException("No channel found for modID: " + modID);
+        }
+        channel.sendToServer(packet);
+    }
+    public static void sendToPlayer(String modID, ServerPlayer player, IPacket packet) {
+        SimpleChannel channel = channels.get(modID);
+        if (channel == null) {
+            throw new IllegalArgumentException("No channel found for modID: " + modID);
+        }
+        channel.send(PacketDistributor.PLAYER.with(() -> player), packet);
+    }
+    public static void sendToAllPlayers(String modID, IPacket packet) {
+        SimpleChannel channel = channels.get(modID);
+        if (channel == null) {
+            throw new IllegalArgumentException("No channel found for modID: " + modID);
+        }
+        channel.send(PacketDistributor.ALL.noArg(), packet);
+    }
 
-    // --- 发送方法保持不变 ---
-    public static void sendToServer(IPacket packet) { INSTANCE.sendToServer(packet); }
-    public static void sendToPlayer(ServerPlayer player, IPacket packet) { INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), packet); }
-    public static void sendToAllPlayers(IPacket packet) { INSTANCE.send(PacketDistributor.ALL.noArg(), packet); }
+    public static SimpleChannel getChannel(String modID) {
+        return channels.get(modID);
+    }
 }
