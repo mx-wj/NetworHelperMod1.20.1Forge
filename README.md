@@ -127,6 +127,12 @@ public class MyEventHandler {
 
 目前版本仅支持Minecraft Forge 1.20.1 (逃
 
+## 下载
+
+可以去 Action 下到最新力作）
+
+当然 Releases 也有，但是我可能更的不及时w
+
 ## 许可证
 
 本模组使用 [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/) 许可证。
